@@ -1,11 +1,10 @@
 import requests
 import os
+import json
 import time
 from datetime import datetime
 
 import tweepy
-from replit import db
-from keep_alive import keep_alive
 
 def make_progress_bar(current_date):   
     total_days_in_year = 365 if not current_date.year % 4 else 366  # Leap year check
@@ -35,19 +34,27 @@ def get_holiday_data(current_date):
         print(f"Error with getting holiday data {response.status_code}")
 
 def get_json_data(item):
-    print(db[item])
-    return db[item]
+    with open(item + '.json', "r") as f:
+        data = json.load(f)
+    return data
+
+    
     
 def add_json_data(item, amount = 1):
     """Adds one to a json counter
        For example, adds one to the 'sent_tweets' counter
     """    
-    db[item] += amount
+    data = get_json_data(item)
+    data += amount
+    with open(item + '.json', "w") as f:
+        json.dump(data, f)
     
     
 def delete_json_data(item, amount = 1):
-        
-    db[item] -= amount
+    data = get_json_data(item)
+    data -= amount
+    with open(item + '.json', "w") as f:
+        json.dump(data, f)
     
 
     
@@ -61,8 +68,7 @@ client = tweepy.Client(bearer_token, api_key, api_secret, access_token, access_t
 #api = tweepy.API(auth)    
     
     
-# 77
-keep_alive()
+
 while True:
     current_date = datetime.now()
     
